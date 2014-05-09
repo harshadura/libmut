@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>icons/crystal_project/mydocuments.png</file>
+        <file>icons/crystal_project/usb.png</file>
+        <file>icons/nuoveXT-kde-1.6/error.png</file>
+        <file>specs/requestID.xml</file>
+    </qresource>
+</RCC>

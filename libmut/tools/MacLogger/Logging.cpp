@@ -1,0 +1,235 @@
+/******************************************************************************
+ * libmut
+ * Logging.cpp
+ *
+ * Copyright 2007 Donour sizemore (donour@unm.edu)
+ *  
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *****************************************************************************/
+
+#include <QDateTime>
+#include <QString>
+#include <QMessageBox>
+
+#include "MacLogger.h"
+#include "Logging.h"
+
+void MacLoggerWindow::set_connected_state(bool s){
+  actionChoose_Log_Directory->setEnabled(!s);
+  actionConnect->   setEnabled(!s);
+  BaudRateBox->     setEnabled(!s);
+  PortComboBox->    setEnabled(!s);
+  LogSpecComboBox-> setEnabled(!s);
+  specReloadButton->setEnabled(!s);
+
+  actionDisconnect->setEnabled(s);
+
+  if(!s)
+    statusbar->showMessage("Disconnected");
+
+  sensorProgressBar->setValue(0);
+}
+
+void MacLoggerWindow::deviceConnect(){
+  int spec_idx = LogSpecComboBox->currentIndex();
+  unsigned int baudrate = BaudRateBox->value();
+ 
+  QString devfn = "/dev/" + PortComboBox->currentText();
+
+  if(log_specs == NULL || log_specs->size() == 0 ){
+    QMessageBox::critical(this, tr("No spec file"),
+                          tr("No log specification files are loaded."));
+    return ;
+  }
+  
+  /* Set sensor labels */
+  LogSpec spec = log_specs->value(spec_idx);
+  sensorValues->setRowCount(spec.size());
+  int row_idx = 0;
+  for(QList<request>::iterator i = spec.requests.begin(); 
+      i != spec.requests.end(); 
+      i++, row_idx++)
+    {
+      QString l = i->label;
+      if(i->unit.size() > 0)
+	l += " (" + i->unit + ")";
+      QTableWidgetItem *item = new QTableWidgetItem(l);
+      sensorValues->setItem(row_idx, 0, item);
+    } 
+
+  /* setup logger thread */
+  activeLogger = new LoggerThread(spec);
+  connect(activeLogger, SIGNAL(progressUpdate(int)), sensorProgressBar, SLOT(setValue(int)));
+  connect(activeLogger, SIGNAL(logToBuffer(QString)), ConnectStatus, SLOT(append(QString)));
+  connect(activeLogger, SIGNAL(updateSensorValues(int,int,int)), this, SLOT(setSensorValItem(int,int,int)));
+  connect(activeLogger, SIGNAL(barShowMessage(QString)), statusbar, SLOT(showMessage(QString)));
+  ConnectStatus->clear();
+
+  /* get outfile name */
+  QString outfile = get_outfile_name();
+  outfileLabel->setText(outfile);
+  outfile = log_dir + outfile;
+  
+  if( activeLogger->log(this,baudrate, outfile, devfn) != 0){
+    delete activeLogger;
+    return;
+  }
+  set_connected_state(true);
+}
+
+void MacLoggerWindow::deviceDisconnect(){
+
+  activeLogger->stop();
+  activeLogger->wait();
+  delete activeLogger;
+  activeLogger = NULL;
+
+  outfileLabel->setText("[none]");
+  ConnectStatus->append("** User Interrupt. Disconnected. **");
+
+  set_connected_state(false);
+}
+
+
+QString MacLoggerWindow::get_outfile_name(){
+  QString filename("mut-log-");
+  QDateTime date = QDateTime::currentDateTime();
+  filename.append( date.toString(Qt::ISODate));
+  filename += ".csv";
+
+  return filename;
+}
+
+void LoggerThread::fail(QString qs){
+  emit logToBuffer(qs);
+  while(!stop_lock.tryLock())
+    usleep(5000);
+  outfile.close();
+  mut_free(conn);
+  return;
+}
+
+int LoggerThread::log(QWidget *parent, unsigned int baudrate, QString filename, QString devfn){
+
+  emit logToBuffer("Connecting to ECU:");
+  emit logToBuffer("------------------");
+
+  /* Open output file */
+  emit logToBuffer("i: Opening output file:\n   " + filename);
+  QByteArray outfilename(filename.toAscii());
+  outfile.open(outfilename.data());
+  if(!outfile.is_open()){
+    emit logToBuffer("!!!: Open Failed\n" + filename);
+    return -1;
+  }
+
+  /* Open serial device */
+  emit logToBuffer("i: Opening device: " + devfn);
+
+  QByteArray devfile(devfn.toAscii());
+  conn = NULL;
+  while(conn == NULL){
+    conn = mut_connect_posix(devfile.data(), baudrate);
+    if(conn == NULL){
+      int reply = QMessageBox::critical(parent, devfn,
+					tr("Open device failed."),
+					QMessageBox::Abort,
+					QMessageBox::Retry,
+					QMessageBox::Ignore);
+      if(reply != QMessageBox::Retry){
+	emit logToBuffer("!!!: Device open failed.");
+        return -2;
+      }
+    }   
+  }
+
+  stop_lock.lock();
+  
+  start();
+  return 0;
+}
+void LoggerThread::run(){
+  
+  /* Generate comment in log file*/
+  QList<QString> *labels = spec.labels();
+  outfile << "###########################################################################\n";
+  outfile << "# Log Generated by MacLogger\n";
+  outfile << "###########################################################################\n";
+  outfile << "#";
+  for(QList<QString>::iterator i = labels->begin(); i != labels->end(); i++){
+    outfile << (i->toAscii()).data() << ",";
+  }
+  outfile <<"\n";
+  delete labels;
+
+
+  if(conn == NULL){
+    /* We got here with a dead connection handle. Go to sleep */
+    QString qs = "!!!: No connection available: REPORT AS BUG";
+    return fail(qs);
+  }
+
+
+
+  /* Do MUT III initialization */
+  emit logToBuffer("i: Performing MUTIII init...");
+
+  int rc = mut_init(conn);
+  if(rc != 0){
+    QString qs;
+    if(rc == -1 || rc == -2)
+      qs =  "!!!: Init failed: Can't set baudrate.";
+    else if(rc == -3)
+      qs =  "!!!: Init failed: Connection timed out.";
+    else qs="!!!: Init failed: Unknown error. Please report this as a bug.";
+
+    return fail(qs);
+  }
+
+
+  emit logToBuffer("----------------------------------");
+  emit logToBuffer("<< Connection success. Logging. >>");
+  emit barShowMessage("Connected");
+
+  int progress=0;
+  unsigned char *buf = new unsigned char[spec.requests.size()];
+  double *results    = new double[spec.requests.size()];
+  while(!stop_lock.tryLock()){
+
+    /* Get each request */
+    int row = 0;
+    for( QList<request>::iterator i = spec.requests.begin() ; i != spec.requests.end() ; i++){
+      unsigned char rid = i->id;      
+      if(mut_get_value(conn, rid, &buf[row]) < 0){
+	QString qs = "!!!: Connection timed out";
+	return fail(qs);
+      }
+      
+      results[row] = i->correct(buf[row]);
+      emit updateSensorValues(row, 1, (int)(results[row]));
+      
+      QString qs = QString("%1,").arg((int)results[row]);;
+      outfile << (qs.toAscii()).data();
+      row++;      
+    }
+    outfile << "\n";
+    emit progressUpdate(++progress%100);
+
+  }
+  delete buf;
+  delete results;
+  outfile.close();
+  mut_free(conn);
+}

@@ -1,0 +1,29 @@
+#AC_PREREQ(2.59)
+AC_INIT([libmut], [0.5], [donour@cs.unm.edu])
+AM_INIT_AUTOMAKE()
+
+AC_CANONICAL_HOST
+AC_PROG_CC
+AC_PROG_RANLIB
+
+dnl #################################################################
+dnl Check for system type
+dnl #################################################################
+case $host in
+     *-linux*) 
+	       CFLAGS="$CFLAGS -DLINUX" ;;
+     *-darwin*) 
+	       CFLAGS="$CFLAGS -DMAC_OSX" ;;
+esac	
+
+dnl #################################################################
+dnl Swig is needed for python bindings
+dnl #################################################################
+#AM_PATH_PYTHON
+#AC_PROG_SWIG
+#SWIG_PYTHON
+
+CFLAGS="$CFLAGS -Wall"
+
+AC_CONFIG_FILES([Makefile tools/Makefile tools/perf_logger/Makefile])
+AC_OUTPUT

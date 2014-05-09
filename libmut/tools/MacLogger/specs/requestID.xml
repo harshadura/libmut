@@ -1,0 +1,51 @@
+<MacLogger>
+
+<ECU>Evo 8/9 Tune</ECU>
+	<Sensors>
+		<Request LogReference="RPM"           RequestID="21" Unit="rpm"   Active="y" Scale1="31.25"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="KnockSum"      RequestID="26" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="OCTNumber"     RequestID="27" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="ECULoad"       RequestID="1C" Unit="%"     Active="y" Scale1="0.625"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="TPS"           RequestID="17" Unit="%"     Active="y" Scale1="0.39215686" Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="InjPulseWidth" RequestID="29" Unit="ms"    Active="y" Scale1="0.256"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="AFRMAP"        RequestID="32" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="AirFlow"       RequestID="1A" Unit="hz"    Active="y" Scale1="6.29"       Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="TimingAdv"     RequestID="06" Unit="deg"   Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="-20.0"   />
+		<Request LogReference="Battery"       RequestID="14" Unit="V"     Active="y" Scale1="0.0733"     Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="Speed"         RequestID="2F" Unit="MPH"   Active="y" Scale1="2.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.621371"/>
+
+		<Request LogReference="AccelEnrich"   RequestID="1D" Unit="%"     Active="y" Scale1="0.39215686" Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+ 		<Request LogReference="CoolantTemp"   RequestID="07" Unit="def F" Active="y" Scale1="-6.5226"    Scale2="0.08056"  Scale3="-0.0003893" Scale0="315.73"  />	
+	</Sensors>
+
+
+<ECU>Evo 8/9 Complete</ECU>
+	<Sensors>
+		<Request LogReference="RPM"           RequestID="21" Unit="rpm"   Active="y" Scale1="31.25"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="KnockSum"      RequestID="26" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="OCTNumber"     RequestID="27" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="ECULoad"       RequestID="1C" Unit="%"     Active="y" Scale1="0.625"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="TPS"           RequestID="17" Unit="%"     Active="y" Scale1="0.39215686" Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="InjPulseWidth" RequestID="29" Unit="ms"    Active="y" Scale1="0.256"      Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="AFRMAP"        RequestID="32" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="AirFlow"       RequestID="1A" Unit="hz"    Active="y" Scale1="6.29"       Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="Baro"          RequestID="15" Unit="kPa"   Active="y" Scale1="0.5"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="TimingAdv"     RequestID="06" Unit="deg"   Active="y" Scale1="1.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="-20.0"   />
+		<Request LogReference="Battery"       RequestID="14" Unit="V"     Active="y" Scale1="0.0733"     Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="MDP"           RequestID="38" Unit="%"     Active="y" Scale1="1.25"       Scale2="0.0"      Scale3="0.0"	       Scale0="0.0"     />
+		<Request LogReference="Speed"         RequestID="2F" Unit="MPH"   Active="y" Scale1="2.0"        Scale2="0.0"      Scale3="0.0"	       Scale0="0.621371"/>
+
+		<Request LogReference="AccelEnrich"   RequestID="1D" Unit="%"     Active="y" Scale1="0.39215686" Scale2="0.0"      Scale3="0.0"        Scale0="0.0"     />
+		<Request LogReference="FuelTrimHigh"  RequestID="0E" Unit="%"     Active="y" Scale1="0.1961"     Scale2="0.0"      Scale3="0.0"        Scale0="-25.0"   />
+		<Request LogReference="FuelTrimLow"   RequestID="0C" Unit="%"     Active="y" Scale1="0.1961"     Scale2="0.0"      Scale3="0.0"        Scale0="-25.0"   />
+		<Request LogReference="FuelTrimMiddle"RequestID="0D" Unit="%"     Active="y" Scale1="0.1961"     Scale2="0.0"      Scale3="0.0"        Scale0="-25.0"   />
+		<Request LogReference="O2FeedbackTrim"RequestID="0F" Unit="%"     Active="y" Scale1="0.1961"     Scale2="0.0"      Scale3="0.0"        Scale0="-25.0"   />
+		<Request LogReference="O2Sensor"      RequestID="13" Unit="%"     Active="y" Scale1="0.0195"     Scale2="0.0"      scale3="0.0"        Scale0="0.0"     />
+ 
+		<Request LogReference="ISCSteps"      RequestID="16" Unit=""      Active="y" Scale1="1.0"        Scale2="0.0"      scale3="0.0"        Scale0="0.0"     />
+
+		<Request LogReference="EGRTemp"       RequestID="12" Unit="F"     Active="y" Scale1="-2.7"       Scale2="0.0"      scale3="0.0"        Scale0="597.7"   />
+		<Request LogReference="CoolantTemp"   RequestID="07" Unit="def F" Active="y" Scale1="-6.5226"    Scale2="0.08056"  Scale3="-0.0003893" Scale0="315.73"  />	
+	</Sensors>
+</MacLogger>
+
